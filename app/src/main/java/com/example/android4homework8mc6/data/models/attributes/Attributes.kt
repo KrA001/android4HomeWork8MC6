@@ -13,7 +13,7 @@ data class Attributes(
     @SerializedName("titles")
     val title: Titles,
 
-    @SerializedName("posterImage")
-    val posterImage: PosterImage
 
+    @SerializedName("posterImage")
+    val posterImage: PosterImage,
 )
