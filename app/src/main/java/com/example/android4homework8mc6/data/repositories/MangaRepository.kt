@@ -6,6 +6,7 @@ import androidx.paging.liveData
 import com.example.android4homework8mc6.base.BaseRepository
 import com.example.android4homework8mc6.data.remote.apiservices.MangaApiService
 import com.example.android4homework8mc6.data.repositories.pagingsources.MangaPagerSource
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MangaRepository @Inject constructor(private val service: MangaApiService) : BaseRepository() {
@@ -19,7 +20,8 @@ class MangaRepository @Inject constructor(private val service: MangaApiService) 
         MangaPagerSource(service)
     }.liveData
 
-    fun fetchSingleManga(id: String) = doRequest {
-        service.fetchSingleManga(id)
+    fun fetchSingleManga(id: String) = flow {
+        emit(service.fetchSingleManga(id).animeModel)
     }
+
 }

@@ -1,9 +1,12 @@
 package com.example.android4homework8mc6.ui.fragments.manga
 
 import android.util.Log
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.android4homework8mc6.R
@@ -29,7 +32,7 @@ class MangaFragment : BaseFragment<FragmentMangaBinding, MangaViewModel>(R.layou
     }
 
     override fun initialize() {
-        binding.recyclerViewManga.apply {
+        binding.rvManga.apply {
             layoutManager = GridLayoutManager(requireContext(), 3)
             adapter = mangaAdapter
         }
@@ -37,6 +40,18 @@ class MangaFragment : BaseFragment<FragmentMangaBinding, MangaViewModel>(R.layou
 
     override fun setupSubscribes() {
         subscribeToAnime()
+        mangaLaunch()
+    }
+
+    private fun mangaLaunch() = with(binding) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                mangaAdapter.loadStateFlow.collect {
+                    progressBar.isVisible = it.source.refresh is LoadState.Loading
+                    appendProgress.isVisible = it.source.append is LoadState.Loading
+                }
+            }
+        }
     }
 
     private fun subscribeToAnime() {
