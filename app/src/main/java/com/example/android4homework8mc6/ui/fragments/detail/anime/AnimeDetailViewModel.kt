@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android4homework8mc6.data.models.AnimeModel
 import com.example.android4homework8mc6.data.repositories.AnimeRepository
+import com.example.android4homework8mc6.utils.Either
 import com.example.android4homework8mc6.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
@@ -34,12 +35,28 @@ class AnimeDetailViewModel @Inject constructor(
     private fun fetchAnimeById() {
         viewModelScope.launch {
             id?.let {
-                repository.fetchSingleAnime(it).catch { throwable ->
-                    _detailState.value =
-                        UiState.Error(throwable, throwable.message ?: "Unknown error")
-                }.collect { anime ->
-                    _detailState.value = UiState.Success(anime)
-                }
+                repository.fetchSingleAnime(it)
+                    .catch { throwable ->
+                        _detailState.value =
+                            UiState.Error(throwable, throwable.message ?: "Unknown error")
+                    }
+                    .collect { either ->
+                        when (either) {
+                            is Either.Left -> {
+                                _detailState.value =
+                                    either.message?.let { it1 ->
+                                        UiState.Error(
+                                            it1,
+                                            either.message?.toString() ?: "Unknown error"
+                                        )
+                                    }
+                            }
+
+                            is Either.Right -> {
+                                _detailState.value = UiState.Success(either.data)
+                            }
+                        }
+                    }
             }
         }
     }
@@ -48,3 +65,4 @@ class AnimeDetailViewModel @Inject constructor(
         private const val ID_KEY = "id"
     }
 }
+
