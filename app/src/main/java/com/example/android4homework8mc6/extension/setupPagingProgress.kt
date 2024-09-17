@@ -1,4 +1,5 @@
 package com.example.android4homework8mc6.extension
+
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -7,7 +8,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 fun <T : PagingDataAdapter<*, *>> Fragment.setupPagingProgress(
