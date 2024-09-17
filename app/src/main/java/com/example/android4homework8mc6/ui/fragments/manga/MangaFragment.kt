@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.android4homework8mc6.R
 import com.example.android4homework8mc6.databinding.FragmentMangaBinding
+import com.example.android4homework8mc6.extension.setupPagingProgress
 import com.example.android4homework8mc6.ui.adapters.MangaAdapter
 import com.example.android4homework8mc6.ui.fragments.home.HomeFragmentDirections
 import com.example.android5kitsuapiteamwork.base.BaseFragment
@@ -44,14 +45,11 @@ class MangaFragment : BaseFragment<FragmentMangaBinding, MangaViewModel>(R.layou
     }
 
     private fun mangaLaunch() = with(binding) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                mangaAdapter.loadStateFlow.collect {
-                    progressBar.isVisible = it.source.refresh is LoadState.Loading
-                    appendProgress.isVisible = it.source.append is LoadState.Loading
-                }
-            }
-        }
+        setupPagingProgress(
+            adapter = mangaAdapter,
+            progressBar = binding.progressBar,
+            appendProgress = binding.appendProgress
+        )
     }
 
     private fun subscribeToAnime() {
