@@ -23,41 +23,37 @@ class MangaDetailFragment :
     override val viewModel: MangaDetailViewModel by viewModels()
     private val args by navArgs<MangaDetailFragmentArgs>()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        args.id.let { id ->
-            viewModel.setId(id)
-        }
-        subscribeToAnime(view)
-
+    override fun initialize() {
+        args.id.let { id -> viewModel.setId(id) }
     }
 
-    override fun setupSubscribes() {
+    override fun setupListeners() {
         binding.tvBack.setOnClickListener {
             findNavController().navigateUp()
         }
     }
 
-    private fun subscribeToAnime(view: View) {
+    override fun setupSubscribes() {
         viewModel.detailState.observe(viewLifecycleOwner) { uiState ->
+            binding.progressBar.isVisible = uiState is UiState.Loading
+
             when (uiState) {
-                is UiState.Error -> uiState.message?.let {
-                    Snackbar.make(
-                        requireView(), it, Snackbar.LENGTH_SHORT
-                    ).show()
+                is UiState.Error -> uiState.message?.let { showSnackbar(it) }
+                is UiState.Success -> uiState.data?.let { manga ->
+                    loadImage(manga.attributes.posterImage.large)
                 }
-
-                UiState.Loading -> binding.progressBar.isVisible = true
-
-                is UiState.Success -> {
-                    binding.progressBar.isVisible = false
-                    uiState.data?.let {
-
-                        Glide.with(binding.artView).load(it.attributes.posterImage.large)
-                            .into(binding.artView)
-                    }
-                }
+                else -> Unit
             }
         }
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun loadImage(url: String) {
+        Glide.with(binding.artView)
+            .load(url)
+            .into(binding.artView)
     }
 }
