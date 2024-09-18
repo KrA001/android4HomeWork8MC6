@@ -105,6 +105,5 @@ dependencies {
     implementation(libs.binding.property.delegate)
 
     // Fragment
-    val fragment_version = "1.5.5"
-    implementation("androidx.fragment:fragment-ktx:$fragment_version")
+    implementation(libs.fragment)
 }

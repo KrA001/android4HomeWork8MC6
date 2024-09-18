@@ -26,35 +26,20 @@ class MangaDetailViewModel @Inject constructor(
 
     fun setId(id: String) {
         savedStateHandle[ID_KEY] = id
-    }
-
-    init {
         fetchMangaById()
     }
 
     private fun fetchMangaById() {
-        viewModelScope.launch {
-            id?.let {
-                repository.fetchSingleManga(id.toInt().toString())
+        id?.let {
+            viewModelScope.launch {
+                repository.fetchSingleManga(it)
                     .catch { throwable ->
-                        _detailState.value =
-                            UiState.Error(throwable, throwable.message ?: "Unknown error")
+                        _detailState.value = UiState.Error(throwable, throwable.message ?: "Unknown error")
                     }
-                    .collect { result ->
-                        when (result) {
-                            is Either.Left -> {
-                                _detailState.value =
-                                    result.message?.let { it1 ->
-                                        UiState.Error(
-                                            it1,
-                                            result.message?.localizedMessage ?: "Unknown error"
-                                        )
-                                    }
-                            }
-
-                            is Either.Right -> {
-                                _detailState.value = UiState.Success(result.data)
-                            }
+                    .collect { either ->
+                        _detailState.value = when (either) {
+                            is Either.Left -> UiState.Error(either.message ?: "Error", either.message?.toString() ?: "Unknown error")
+                            is Either.Right -> UiState.Success(either.data)
                         }
                     }
             }
